@@ -51,7 +51,7 @@
   const SUPABASE_URL = "https://wimuplokspgnzgpmmacf.supabase.co";
   const SUPABASE_KEY = "sb_publishable_2cGXWmw94XERAqkruLDhfw_cqGcmxmk";
 
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const T = {
     ar: { titleAct:"تفعيل الحساب", subAct:"اضبط كلمة المرور لتفعيل حسابك",
@@ -105,7 +105,7 @@
       // Newer flow: ?token_hash=...&type=invite|recovery|...
       const tokenHash = params.get("token_hash");
       if (tokenHash) {
-        const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
+        const { error } = await sb.auth.verifyOtp({ type, token_hash: tokenHash });
         if (error) throw error;
         sessionType = type;
         sessionReady = true; apply();
@@ -116,7 +116,7 @@
       if (code) {
         // The verifier lives in localStorage only when the flow started here;
         // for links opened fresh in a browser we fall back to implicit tokens.
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        const { error } = await sb.auth.exchangeCodeForSession(code);
         if (error) { /* PKCE verifier missing — rely on fragment below */ }
         sessionType = type || 'recovery';
         sessionReady = true; apply();
@@ -126,7 +126,7 @@
       const accessToken = hash.get("access_token");
       const refreshToken = hash.get("refresh_token");
       if (accessToken) {
-        await supabase.auth.setSession({
+        await sb.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken,
         });
@@ -160,7 +160,7 @@
     const btn = $("submit");
     btn.disabled = true; btn.textContent = t.busy;
     try {
-      const { error } = await supabase.auth.updateUser({ password: pw });
+      const { error } = await sb.auth.updateUser({ password: pw });
       if (error) throw error;
       const ok=$("msg"); ok.className="msg ok"; ok.textContent=t.subDone;
       $("formWrap").style.display="none";
